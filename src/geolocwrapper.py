@@ -1,6 +1,6 @@
 # geolocwrapper.py
 
-from geopy.distance import distance
+from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 from geopy.exc import GeopyError
 
@@ -22,6 +22,9 @@ class GeoLocWrapper:
         self.geolocator = Nominatim(user_agent="test-application")     
         self.location = self.geolocator.geocode(addr_str)
         
+        if not self.location:
+            raise GeopyError
+        
     def get_distance_miles(self, dest_addr_str=None):
         """Returns the geodisic distance in miles from location and 
         dest_addr_str.
@@ -29,7 +32,12 @@ class GeoLocWrapper:
         Consider: What happens if the geolocator cannot locate geographic 
         location from dest_addr_str?
         """
-        pass
+        dest = self.geolocator.geocode(dest_addr_str)
+        if not dest:
+            raise GeopyError
+        start = self.location.latitude, self.location.longitude
+        end = dest.latitude, dest.longitude
+        return geodesic(start, end).miles
 
     def get_distance_kilometers(self, dest_addr_str=None):
         """Returns the geodisic distance in kilometers from location and 
@@ -38,7 +46,12 @@ class GeoLocWrapper:
         Consider: What happens if the geolocator cannot locate geographic 
         location from dest_addr_str?
         """
-        pass
+        dest = self.geolocator.geocode(dest_addr_str)
+        if not dest:
+            raise GeopyError
+        start = self.location.latitude, self.location.longitude
+        end = dest.latitude, dest.longitude
+        return geodesic(start, end).kilometers
 
 
 
